@@ -7,6 +7,7 @@ import { EmailService } from '../../email/services/email.service';
 import { UserRepository } from '../repositories/user.repository';
 import { CryptoService } from '../services/crypto.service';
 import { TemporaryPasswordGeneratorService } from '../services/temporary-password-generator.service';
+import { FirstLoginAlreadyDoneException, InvalidPasswordException, UserAlreadExistsException, UserNotFoundException } from '../exceptions/authentication.exception';
 
 export class AuthController {
     private authenticationService: AuthenticationService;

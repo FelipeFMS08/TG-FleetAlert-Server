@@ -2,6 +2,7 @@ import { generateEmailBody } from "../../../shared/generateEmail.template";
 import { JwtService } from "../../../shared/jwt.service";
 import { EmailModule } from "../../email/email.module";
 import { EmailService } from "../../email/services/email.service";
+import { UserAlreadExistsException, InvalidPasswordException, FirstLoginAlreadyDoneException, UserNotFoundException } from "../exceptions/authentication.exception";
 import { AuthenticationServiceInterface } from "../interfaces/authentication-service";
 import { ICryptoService } from "../interfaces/crypto-service.interface";
 import { IPasswordGenerator } from "../interfaces/password-generator.interface";
@@ -21,9 +22,9 @@ export class AuthenticationService implements AuthenticationServiceInterface {
     }
 
    async register(email: string, name: string): Promise<void> {
-        const user = this.userRepository.findUserByEmail(email);
+        const user = await this.userRepository.findUserByEmail(email);
 
-        if (!user) throw new UserNotFoundException();
+        if (user != null) throw new UserAlreadExistsException();
 
         const temporaryPassword = this.passwordGenerator.generateTemporaryPassword();
         const hashedtemporaryPassword = await this.cryptoService.hash(temporaryPassword);
@@ -44,6 +45,8 @@ export class AuthenticationService implements AuthenticationServiceInterface {
 
     async validateUser(email: string, password?: string): Promise<string | null> {
         const user = await this.userRepository.findUserByEmail(email);
+
+        console.log(user)
 
         if (user && password) {
             const isPasswordValid = await this.cryptoService.compare(password, user.password);
@@ -66,6 +69,7 @@ export class AuthenticationService implements AuthenticationServiceInterface {
                     emailBody
                 );
             }
+            return null;
         }
         throw new UserNotFoundException();
     }
