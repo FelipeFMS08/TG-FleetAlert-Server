@@ -4,6 +4,7 @@ interface JwtPayload {
     id: string;
     email: string;
     firstAccess: boolean;
+    role: string;
 }
 
 export class JwtService {

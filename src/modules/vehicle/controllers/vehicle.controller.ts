@@ -19,14 +19,14 @@ export class VehicleController {
         const vehicleCommand: VehicleCommand = req.body as unknown as VehicleCommand;
 
         try {
-            await this.vehicleService.createVehicle(vehicleCommand);
-            res.status(201).send("OK");
+            const response = await this.vehicleService.createVehicle(vehicleCommand);
+            res.status(201).send(response);
         } catch(error) {
             res.status(500).send(error);
         }
      }
 
-    findAll = async (req: Request, res: Response) => {
+    async findAll(req: Request, res: Response) {
         try {
             const response = await this.vehicleService.findAll();
             res.status(200).send(response);
@@ -35,12 +35,22 @@ export class VehicleController {
         }
     }
 
-    async findByUserId(req: Request, res: Response) {
-        const userId  = req.params.id;
+    async findByResponsibleId(req: Request, res: Response) {
+        const responsibleId  = req.params.id;
         try {
-            const response = await this.vehicleService.findByUserId(userId!);
+            const response = await this.vehicleService.findVehicleByResponsibleId(Number(responsibleId));
             res.status(200).send(response);
         } catch (error) {
+            res.status(500).send(error);
+        }
+    }
+
+    async deleteVehicle(req: Request, res: Response) {
+        const vehicleId = req.params.id;
+        try {
+            const response = await this.vehicleService.deleteVehicle(Number(vehicleId));
+            res.status(200).send(response);
+        } catch (error){
             res.status(500).send(error);
         }
     }

@@ -1,6 +1,7 @@
 import { IUserRepository } from "../interfaces/user-repository.interface";
 import { AuthenticationDTO } from "../dto/AuthenticationDTO";
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import { User } from "prisma/generated/client";
 
 
 export class UserRepository implements IUserRepository {
@@ -13,12 +14,13 @@ export class UserRepository implements IUserRepository {
         });    
     }
 
-    async createUserWithoutPassword(email: string, temporaryPassword: string): Promise<User> {
+    async createUserWithoutPassword(email: string, name: string, temporaryPassword: string): Promise<User> {
         return this.prisma.user.create({
             data: {
                 email,
+                name: name,
                 password: temporaryPassword,
-                role: 'MEMBER', // Cargo padrão
+                role: 'MEMBER',
                 isFirstLogin: true,
                 emailVerified: false,
             },

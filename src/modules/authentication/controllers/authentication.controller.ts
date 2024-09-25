@@ -30,11 +30,14 @@ export class AuthController {
     }
 
     async register(req: Request, res: Response) {
-        const { email } = req.body;
+        const { email, name } = req.body;
         try {
-            await this.authenticationService.register(email);
+            await this.authenticationService.register(email, name);
             res.status(201).send('Usuário registrado com sucesso.');
         } catch (error) {
+            if (error instanceof UserAlreadExistsException) {
+                return res.status(401).json({ message: error.message });
+            }
             res.status(500).send(error);
         }
     }
@@ -46,10 +49,21 @@ export class AuthController {
                 const token = await this.authenticationService.login(email, password);
                 return res.status(200).json({ token });
             }
+
             await this.authenticationService.login(email);
             return res.status(201).send('Senha temporária enviada com sucesso');
         } catch (error) {
-            res.status(401).send(error);
+            if (error instanceof UserNotFoundException) {
+                return res.status(404).json({ message: error.message });
+            }
+            if (error instanceof InvalidPasswordException) {
+                return res.status(401).json({ message: error.message });
+            }
+            if (error instanceof FirstLoginAlreadyDoneException) {
+                return res.status(400).json({ message: error.message });
+            }
+
+            return res.status(500).json({ message: "Erro interno do servidor." });
         }
     }
 

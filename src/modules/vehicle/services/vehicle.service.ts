@@ -8,14 +8,18 @@ export class VehicleService implements IVehicleService {
 
     constructor(private vehicleRepository: IVehicleRepository){}
 
-    async createVehicle(vehicle: VehicleCommand): Promise<void> {
-        await this.vehicleRepository.createVehicle(vehicle);
+    async createVehicle(vehicle: VehicleCommand): Promise<VehicleResponse> {
+        return await this.vehicleRepository.createVehicle(vehicle);
     }
     async findAll(): Promise<VehicleResponse[] | null> {
         return await this.vehicleRepository.findAll();
     }
-    async findByUserId(userId: string): Promise<VehicleResponse[] | null> {
-        return await this.vehicleRepository.findVehicleByUserId(userId);
+    async findVehicleByResponsibleId(responsibleId: number): Promise<VehicleResponse[] | null> {
+        return await this.vehicleRepository.findVehicleByResponsibleId(responsibleId);
+    }
+
+    async deleteVehicle(vehicleId: number): Promise<boolean> {
+        return await this.vehicleRepository.deleteVehicle(vehicleId);
     }
 
 }
