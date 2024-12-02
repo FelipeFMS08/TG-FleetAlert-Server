@@ -7,7 +7,22 @@ export class VehicleRepository implements IVehicleRepository {
     constructor(private prisma: PrismaClient) {}
     
     async findAll(): Promise<VehicleResponse[] | null> {
-        return await this.prisma.vehicle.findMany();
+        const vehicles = await this.prisma.vehicle.findMany({
+            include: {
+              responsible: {
+                select: {
+                  name: true, 
+                },
+              },
+            },
+          });
+          
+          const vehiclesWithResponsibleName = vehicles.map((vehicle: any) => ({
+            ...vehicle,
+            responsible: vehicle.responsible.name,  
+          }));
+          
+          return vehiclesWithResponsibleName;
     }
     
     async findVehicleByResponsibleId(userId: number): Promise<VehicleResponse[] | null> {

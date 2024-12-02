@@ -10,6 +10,11 @@ generator client {
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+  output   = "./schema.dbml"
+}
+
 datasource db {
   provider  = "postgresql"
   url       = env("POSTGRES_PRISMA_URL")

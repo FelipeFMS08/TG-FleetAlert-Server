@@ -31,10 +31,14 @@ export class AuthController {
     }
 
     async register(req: Request, res: Response) {
-        const { email, name } = req.body;
+        const { email } = req.body;
+        const authenticationHeader = req.headers.authorization;
+        const token = authenticationHeader!.split(' ')[1];
+
         try {
-            await this.authenticationService.register(email, name);
-            res.status(201).send('Usuário registrado com sucesso.');
+            const response = await this.authenticationService.register(email, "", token);
+            if (response) return res.status(200).send(response);
+            res.status(401).send("Usuário não criado devido ao seu cargo");
         } catch (error) {
             if (error instanceof UserAlreadExistsException) {
                 return res.status(401).json({ message: error.message });

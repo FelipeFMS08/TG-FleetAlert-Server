@@ -1,5 +1,7 @@
+import { UsersResponse } from "@/modules/users/dto/responses/users.response";
+
 export interface AuthenticationServiceInterface {
-    register(email: string, name: string): Promise<void>;
+    register(email: string, name: string, token: string): Promise<UsersResponse | null>;
     login(email: string, password?: string): Promise<string>;
     validateUser(email: string, password?: string): Promise<string | null>;
     changePassword(userId: string, newPassword: string): Promise<void>;

@@ -8,7 +8,7 @@ const authController = new AuthController();
 const jwtService = new JwtService();
 const authenticationMiddleware = new AuthenticationMiddleware(jwtService);
 
-router.post('/register', authController.register.bind(authController));
+router.post('/register', authenticationMiddleware.authenticateToken.bind(authenticationMiddleware), authController.register.bind(authController));
 router.post('/login', authController.login.bind(authController));
 router.post('/change-password', authenticationMiddleware.authenticateToken.bind(authenticationMiddleware), authController.changePassword.bind(authController));
 router.post('/change-email', authenticationMiddleware.authenticateToken.bind(authenticationMiddleware), authController.changeEmail.bind(authController));

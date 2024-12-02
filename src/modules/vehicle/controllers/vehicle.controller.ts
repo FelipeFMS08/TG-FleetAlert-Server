@@ -17,7 +17,6 @@ export class VehicleController {
 
     async createVehicle(req: Request, res: Response) {
         const vehicleCommand: VehicleCommand = req.body as unknown as VehicleCommand;
-
         try {
             const response = await this.vehicleService.createVehicle(vehicleCommand);
             res.status(201).send(response);

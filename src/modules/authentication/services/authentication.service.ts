@@ -1,3 +1,4 @@
+import { UsersResponse } from "@/modules/users/dto/responses/users.response";
 import { generateEmailBody } from "../../../shared/generateEmail.template";
 import { JwtService } from "../../../shared/jwt.service";
 import { EmailModule } from "../../email/email.module";
@@ -21,15 +22,16 @@ export class AuthenticationService implements AuthenticationServiceInterface {
         this.emailService = emailModule.emailService;
     }
 
-   async register(email: string, name: string): Promise<void> {
+    async register(email: string, name: string, token: string): Promise<UsersResponse | null> {
+        const decodedToken = this.jwtService.verifyToken(token);
+
+        if (decodedToken?.role == "MEMBER") return null;
+
         const user = await this.userRepository.findUserByEmail(email);
 
         if (user != null) throw new UserAlreadExistsException();
 
-        const temporaryPassword = this.passwordGenerator.generateTemporaryPassword();
-        const hashedtemporaryPassword = await this.cryptoService.hash(temporaryPassword);
-
-        await this.userRepository.createUserWithoutPassword(email, name, hashedtemporaryPassword);
+        return await this.userRepository.createUserWithoutPassword(email, name);;
     }
 
     async login(email: string, password?: string): Promise<string> {
@@ -46,8 +48,6 @@ export class AuthenticationService implements AuthenticationServiceInterface {
     async validateUser(email: string, password?: string): Promise<string | null> {
         const user = await this.userRepository.findUserByEmail(email);
 
-        console.log(user)
-
         if (user && password) {
             const isPasswordValid = await this.cryptoService.compare(password, user.password);
             if (isPasswordValid) {
@@ -55,19 +55,24 @@ export class AuthenticationService implements AuthenticationServiceInterface {
             }
             throw new InvalidPasswordException();
         }
-        
+
         if (user) {
             if (!user.isFirstLogin) throw new FirstLoginAlreadyDoneException();;
-    
+
             if (!password) {
-                
-                const emailBody = generateEmailBody("senha", user.password);
-    
+
+                const temporaryPassword = this.passwordGenerator.generateTemporaryPassword();
+
+                const emailBody = generateEmailBody("senha", temporaryPassword);
+
                 await this.emailService.sendEmail(
                     email,
                     'Sua senha Temporária',
                     emailBody
                 );
+
+                const hashedTemporaryPassword = await this.cryptoService.hash(temporaryPassword);
+                await this.userRepository.updatePassword(user.id, hashedTemporaryPassword);
             }
             return null;
         }
@@ -126,6 +131,6 @@ export class AuthenticationService implements AuthenticationServiceInterface {
         }
 
         return this.jwtService.generateToken({ id: decodedToken.id, email: decodedToken.email, firstAccess: decodedToken.firstAccess, role: decodedToken.role });
-     }
+    }
 
 }

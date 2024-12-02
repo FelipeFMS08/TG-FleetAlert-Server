@@ -1,5 +1,6 @@
+import { AlertResponse } from "@/modules/alerts/dto/response/alerts.response";
+import { UserInfosResponse } from "@/modules/users/dto/responses/users-info.response";
 import VehicleResponse from "@/modules/vehicle/dto/responses/vehicle.response";
-import { Alerts, User } from "prisma/generated/client";
 
 export interface RouteResponse {
     id: number,
@@ -8,8 +9,15 @@ export interface RouteResponse {
     startAddress: string,
     finishAddress: string,
     creatorid: string,
+    creator: string,
     vehicle: VehicleResponse,
-    user: User,
+    user: string,
     status: string,
-    alerts: Alerts
+    alerts: AlertResponse[]
+}
+
+export interface RouteTrackingResponse {
+    route: RouteResponse;
+    user: UserInfosResponse;
+    vehicle: VehicleResponse;
 }

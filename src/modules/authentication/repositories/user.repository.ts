@@ -2,6 +2,7 @@ import { IUserRepository } from "../interfaces/user-repository.interface";
 import { AuthenticationDTO } from "../dto/AuthenticationDTO";
 import { PrismaClient } from "@prisma/client";
 import { User } from "prisma/generated/client";
+import { UsersResponse } from "@/modules/users/dto/responses/users.response";
 
 
 export class UserRepository implements IUserRepository {
@@ -14,17 +15,28 @@ export class UserRepository implements IUserRepository {
         });    
     }
 
-    async createUserWithoutPassword(email: string, name: string, temporaryPassword: string): Promise<User> {
+    async createUserWithoutPassword(email: string, name: string): Promise<UsersResponse> {
         return this.prisma.user.create({
             data: {
                 email,
                 name: name,
-                password: temporaryPassword,
+                password: '',
                 role: 'MEMBER',
                 isFirstLogin: true,
                 emailVerified: false,
             },
-        });
+            select: {
+                id: true,
+                name: true,
+                password: false,
+                email: true,
+                emailVerified: true,
+                createdAt: false,
+                isFirstLogin: false,
+                role: true,
+                photo: false
+            }
+        }) as UsersResponse;
     }
 
     async updatePassword(userId: string, newPassword: string): Promise<User> {
